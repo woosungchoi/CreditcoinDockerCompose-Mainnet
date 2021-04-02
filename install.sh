@@ -18,7 +18,7 @@ if [ "$1" == "setup" ]; then
   read -p "Input your Ethereum private key (except 0x) : " PRIVKEY \
   && git clone https://github.com/woosungchoi/CreditcoinDockerCompose-Mainnet CreditcoinDockerCompose-Mainnet \
   && cd CreditcoinDockerCompose-Mainnet \
-  && sed -i "s/[IPADDRESS]/"$(curl -s icanhazip.com)"/g" ./Server/docker-compose.yaml \
+  && sed -i "s/<IPADDRESS>/"$(curl -s icanhazip.com)"/g" ./Server/docker-compose.yaml \
   && sed -i "s/<ethereum_node_url>/$INFURA/g" ./Server/gatewayConfig.json \
   && sed -i "s/<ethereum_node_url>/$INFURA/g" ./Client/clientConfig.json \
   && sed -i "s/<ethereum_private_key_no_0x>/$PRIVKEY/g" ./Client/clientConfig.json \
@@ -49,5 +49,5 @@ if [ "$1" == "setup" ]; then
   && sed -i "s/<256_bit_key_secp256k1_ECDSA>/$CTC_PRIVKEY/g" ./Client/clientConfig.json \
   && sudo docker-compose -f ./Server/docker-compose.yaml down \
   && echo 'First intallation is done.'\
-  && echo 'Now you need to download snapshot!'\
+  && echo 'Now you need to download snapshot!'
 fi
