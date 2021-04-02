@@ -16,8 +16,8 @@ if [ "$1" == "setup" ]; then
   && if [ "$CHANGE_WALLET" == "y" ]; then
             read -p "Input your CTC PRIVATE KEY : " CTC_PRIVKEY2 \
             && read -p "Input your CTC PUBLIC KEY : " CTC_PUBKEY \
-            && sudo docker exec sawtooth-validator-default bash echo $CTC_PRIVKEY2 > /etc/sawtooth/keys/validator.priv \
-            && sudo docker exec sawtooth-validator-default bash echo $CTC_PUBKEY > /etc/sawtooth/keys/validator.pub \
+            && sudo docker exec -it sawtooth-validator-default bash -c "echo $CTC_PRIVKEY2 > /etc/sawtooth/keys/validator.priv" \
+            && sudo docker exec -it sawtooth-validator-default bash -c "echo $CTC_PUBKEY > /etc/sawtooth/keys/validator.pub" \
             && echo 'Restarting CTC Server...' \
             && sudo docker-compose -f ./Server/docker-compose.yaml down \
             && sudo docker-compose -f ./Server/docker-compose.yaml up -d
