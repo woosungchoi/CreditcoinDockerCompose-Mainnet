@@ -20,7 +20,7 @@ version: "3.7"
 services:
 
   settings-tp:
-    image: hyperledger/sawtooth-settings-tp:1.0
+    image: hyperledger/sawtooth-settings-tp:1.2
     container_name: sawtooth-settings-tp-default
     depends_on:
       - validator
@@ -51,6 +51,8 @@ services:
     secrets:
      - source: validator_logging
        target: /etc/sawtooth/log_config.toml
+     - source: concurrent_pow_solvers
+       target: /usr/local/lib/python3.5/dist-packages/PoW/__init__.py
     entrypoint: |
         bash -c 'if [[ ! -f /etc/sawtooth/keys/validator.pub ]]
             then 
@@ -58,7 +60,7 @@ services:
                 sawadm keygen
             fi
             sawtooth-validator \
-                --endpoint tcp://[insert.your.ip]:8800 \
+                --endpoint tcp://[IPADDRESS]:8800 \
                 --bind component:tcp://eth0:4004 \
                 --bind network:tcp://eth0:8800 \
                 --peering dynamic \
@@ -66,6 +68,14 @@ services:
                 --seeds tcp://node-001.creditcoin.org:8800 \
                 --seeds tcp://node-002.creditcoin.org:8800 \
                 --seeds tcp://node-003.creditcoin.org:8800 \
+                --seeds tcp://creditcoin-node.gluwa.com:8800 \
+                --seeds tcp://creditcoin-gateway.gluwa.com:8800 \
+                --seeds tcp://118.27.14.197:8800 \
+                --seeds tcp://118.27.20.120:8800 \
+                --seeds tcp://160.251.9.11:8800 \
+                --seeds tcp://160.251.9.75:8800 \
+                --seeds tcp://160.251.10.137:8800 \
+                --seeds tcp://160.251.13.5:8800 \
                 --maximum-peer-connectivity 5 \
                 --scheduler parallel'
     stop_signal: SIGKILL
@@ -76,7 +86,7 @@ services:
             max-size: "100m"
 
   rest-api:
-    image: hyperledger/sawtooth-rest-api:1.0
+    image: hyperledger/sawtooth-rest-api:1.2
     container_name: sawtooth-rest-api-default
     ports:
       - 8008:8008
@@ -137,6 +147,8 @@ services:
 secrets:
   gateway_config:
     file: ./gatewayConfig.json
+  concurrent_pow_solvers:
+    file: ./__init__.py
   rest_api_logging:
     file: ./rest_api-log_config.toml
   validator_logging:
