@@ -50,5 +50,5 @@ if [ "$1" == "setup" ]; then
   && sed -i "s/<256_bit_key_secp256k1_ECDSA>/$CTC_PRIVKEY/g" ./Client/clientConfig.json \
   && sudo docker-compose -f ./Server/docker-compose.yaml down \
   && echo 'First intallation is done.'\
-  && echo 'Now you need to download snapshot!'
+  && echo 'Now you need to download snapshot and setup install2.'
 fi
