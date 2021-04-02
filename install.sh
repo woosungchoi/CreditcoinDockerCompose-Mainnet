@@ -14,8 +14,8 @@ fi
 
 if [ "$1" == "setup" ]; then
   echo 'Setting system...' \
-  && read -p "Input your Infura node URL (ex. https://mainnet.infura.io/v3/..... ) : " INFURA
-  read -p "Input your Ethereum private key (except 0x) : " PRIVKEY \
+  && read -p "Input your Infura node URL (ex. https://mainnet.infura.io/v3/..... ) : " INFURA \
+  && read -p "Input your Ethereum private key (except 0x) : " PRIVKEY \
   && sudo rm -rf CreditcoinDockerCompose-Mainnet && git clone https://github.com/woosungchoi/CreditcoinDockerCompose-Mainnet CreditcoinDockerCompose-Mainnet \
   && cd CreditcoinDockerCompose-Mainnet \
   && sed -i "s/<IPADDRESS>/"$(curl -s icanhazip.com)"/g" ./Server/docker-compose.yaml \
