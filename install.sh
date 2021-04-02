@@ -19,9 +19,9 @@ if [ "$1" == "setup" ]; then
   && sudo rm -rf CreditcoinDockerCompose-Mainnet && git clone https://github.com/woosungchoi/CreditcoinDockerCompose-Mainnet CreditcoinDockerCompose-Mainnet \
   && cd CreditcoinDockerCompose-Mainnet \
   && sed -i "s/<IPADDRESS>/"$(curl -s icanhazip.com)"/g" ./Server/docker-compose.yaml \
-  && sed -i "s/<ethereum_node_url>/$INFURA/g" ./Server/gatewayConfig.json \
-  && sed -i "s/<ethereum_node_url>/$INFURA/g" ./Client/clientConfig.json \
-  && sed -i "s/<ethereum_private_key_no_0x>/$PRIVKEY/g" ./Client/clientConfig.json \
+  && sed -i "s,<ethereum_node_url>,$INFURA,g" ./Server/gatewayConfig.json \
+  && sed -i "s,<ethereum_node_url>,$INFURA,g" ./Client/clientConfig.json \
+  && sed -i "s,<ethereum_private_key_no_0x>,$PRIVKEY,g" ./Client/clientConfig.json \
   && echo 'Setting timezone to Asia/Seoul...' \
   && sudo timedatectl set-timezone Asia/Seoul \
   && echo 'Installing Docker...' \
