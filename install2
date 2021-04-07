@@ -11,7 +11,7 @@ if [ "$1" == "setup" ]; then
   && sudo docker exec -it creditcoin-client ./ccclient sighash \
   && echo 'Above text is your sighash' \
   && echo 'Configuring cron...' \
-  && echo "*/30 * * * * /root/CreditcoinDocs-Mainnet/restart_node.sh >> /root/CreditcoinDocs-Mainnet/restart_node.log 2>&1" >> mycron \
+  && echo "*/30 * * * * /root/CreditcoinDockerCompose-Mainnet/restart_node.sh >> /root/CreditcoinDockerCompose-Mainnet/restart_node.log 2>&1" >> mycron \
   && sudo crontab mycron; rm mycron \
   && read -p "Do you want change sighash? (ex. y or n) : " CHANGE_WALLET \
   && if [ "$CHANGE_WALLET" == "y" ]; then
