@@ -4,7 +4,7 @@ if [ "$1" == "setup" ]; then
   echo 'extracting snapshot...' \
   && sudo rm -f /var/lib/docker/volumes/server_validator-block-volume/_data/* \
   && sudo tar -I pigz -xvf /home/ftpuser/snapshot.tar.gz -P /var/lib/docker/volumes/server_validator-block-volume/ \
-  && cd CreditcoinDockerCompose-Mainnet \
+  && cd && cd CreditcoinDockerCompose-Mainnet \
   && sudo chmod +x restart_node.sh && chmod +x snapshot.sh && chmod +x cc.sh \
   && sudo docker-compose -f ./Server/docker-compose.yaml up -d \
   && sudo docker-compose -f ./Client/docker-compose.yaml up -d \
