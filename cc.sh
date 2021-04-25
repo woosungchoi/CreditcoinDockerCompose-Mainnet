@@ -26,9 +26,9 @@ do
 	case $opt in 
 		1)
 			echo "서버 및 클라이언트 도커 컨테이너를 실행합니다..."
-			sudo docker-compose -f ./Server/docker-compose.yaml up -d
+			sudo docker-compose -f /root/CreditcoinDockerCompose-Mainnet/Server/docker-compose.yaml up -d
 			sleep 1
-			sudo docker-compose -f ./Client/docker-compose.yaml up -d
+			sudo docker-compose -f /root/CreditcoinDockerCompose-Mainnet/Client/docker-compose.yaml up -d
 			sleep 1
 			;;
 		2)
@@ -50,13 +50,13 @@ do
 				elif [ "$PreBlkNum" -eq "$CurBlkNum" ]
 				then
 					echo "$(date "+%Y-%m-%d %H:%M:%S") | 현재 블록높이가 1시간 전과 같아 서버를 재기동합니다..."
-					sudo docker-compose -f ./Client/docker-compose.yaml down 			
+					sudo docker-compose -f /root/CreditcoinDockerCompose-Mainnet/Client/docker-compose.yaml down 			
 					sleep 1
-					sudo docker-compose -f ./Server/docker-compose.yaml down
+					sudo docker-compose -f /root/CreditcoinDockerCompose-Mainnet/Server/docker-compose.yaml down
 					sleep 1
-					sudo docker-compose -f ./Server/docker-compose.yaml up -d
+					sudo docker-compose -f /root/CreditcoinDockerCompose-Mainnet/Server/docker-compose.yaml up -d
 					sleep 1
-					sudo docker-compose -f ./Client/docker-compose.yaml up -d
+					sudo docker-compose -f /root/CreditcoinDockerCompose-Mainnet/Client/docker-compose.yaml up -d
 					sleep 1
 				else 
 					echo "$(date "+%Y-%m-%d %H:%M:%S") | 1시간 전 블록높이는 $PreBlkNum이고 현재 블록높이는 $CurBlkNum입니다."
@@ -101,9 +101,9 @@ do
 			;;
 		8)
 			echo "서버 및 클라이언트 도커 컨테이너를 종료합니다..."
-			sudo docker-compose -f ./Client/docker-compose.yaml down 			
+			sudo docker-compose -f /root/CreditcoinDockerCompose-Mainnet/Client/docker-compose.yaml down 			
 			sleep 1
-			sudo docker-compose -f ./Server/docker-compose.yaml down
+			sudo docker-compose -f /root/CreditcoinDockerCompose-Mainnet/Server/docker-compose.yaml down
 			sleep 1
 			;;
 		0)
