@@ -5,7 +5,7 @@ if [ "$1" == "setup" ]; then
   && sudo rm -f /var/lib/docker/volumes/server_validator-block-volume/_data/* \
   && sudo tar -I pigz -xvf /home/ftpuser/snapshot.tar.gz -P /var/lib/docker/volumes/server_validator-block-volume/ \
   && cd && cd CreditcoinDockerCompose-Mainnet \
-  && sudo chmod +x restart_node.sh && chmod +x snapshot.sh && chmod +x cc.sh \
+  && sudo chmod +x restart_node.sh && chmod +x snapshot.sh && chmod +x cc.sh && chmod +x restart.sh \
   && sudo docker-compose -f ./Server/docker-compose.yaml up -d \
   && sudo docker-compose -f ./Client/docker-compose.yaml up -d \
   && sudo docker exec -it creditcoin-client ./ccclient sighash \
@@ -13,7 +13,7 @@ if [ "$1" == "setup" ]; then
   && echo 'Configuring cron...' \
   && echo "*/30 * * * * /root/CreditcoinDockerCompose-Mainnet/restart_node.sh >> /root/CreditcoinDockerCompose-Mainnet/restart_node.log 2>&1" >> mycron \
   && sudo crontab mycron; rm mycron \
-  && read -p "Do you want change sighash? (ex. y or n) : " CHANGE_WALLET \
+  && read -p "Do you want change wallet? (ex. y or n) : " CHANGE_WALLET \
   && if [ "$CHANGE_WALLET" == "y" ]; then
             read -p "Input your CTC PRIVATE KEY : " CTC_PRIVKEY2 \
             && read -p "Input your CTC PUBLIC KEY : " CTC_PUBKEY \

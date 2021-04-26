@@ -42,10 +42,10 @@ if [ "$1" == "setup" ]; then
   sudo docker-compose -f ./Server/docker-compose.yaml pull \
   && echo 'CTC server is now running...'\
   && sudo docker-compose -f ./Server/docker-compose.yaml up -d \
-  && sudo docker exec sawtooth-validator-default cat /etc/sawtooth/keys/validator.priv \
-  && echo 'Above text is your CTC PRIVATE KEY'\
   && sudo docker exec sawtooth-validator-default cat /etc/sawtooth/keys/validator.pub \
   && echo 'Above text is your CTC PUBLIC KEY'\
+  && sudo docker exec sawtooth-validator-default cat /etc/sawtooth/keys/validator.priv \
+  && echo 'Above text is your CTC PRIVATE KEY'\
   && read -p "Input your CTC private key : " CTC_PRIVKEY \
   && sed -i "s/<256_bit_key_secp256k1_ECDSA>/$CTC_PRIVKEY/g" ./Client/clientConfig.json \
   && sudo docker-compose -f ./Server/docker-compose.yaml down \
