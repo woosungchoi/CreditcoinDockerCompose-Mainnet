@@ -102,7 +102,7 @@ services:
     entrypoint: ./ccprocessorLinux.out tcp://validator:4004 tcp://gateway:55555
     stop_signal: SIGKILL
     logging:
-      driver: "json-file"
+        driver: "json-file"
         options:
           max-file: "5"
           max-size: "10m"
