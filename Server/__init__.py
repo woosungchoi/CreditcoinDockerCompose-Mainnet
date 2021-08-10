@@ -25,6 +25,7 @@ import hashlib
 import logging
 import sys
 import atexit
+import socket
 import multiprocessing as mp
 from threading import RLock
 
@@ -106,6 +107,15 @@ class _Solver:
                     nonce = random.randrange(sys.maxsize)
 
                     responder.send([_SolverState.WORKING,solver,actual_solver])
+
+                    #LOGGER.warning('solver start')
+                    hashSocket = _Helper.hash_server_connect()
+                    resMsg = _Helper.hash_server_work_send(hashSocket, encodedBlockID.decode(), encodedPublicKey.decode(), str(difficulty))
+                    if resMsg == None:
+                        #LOGGER.warning('work send none')
+                        hashSocket = None
+                    #LOGGER.warning('work send')
+
                     # working event loop
                     while True:
                         if responder.poll():
@@ -113,30 +123,76 @@ class _Solver:
                             action = command[0]
                             actual_solver = command[1]
                             if action == _SolverCommand.SWAP:
+                                #LOGGER.warning('solver swap')
                                 responder.send([_SolverState.WORKING,solver,actual_solver])
                                 continue
                             elif action == _SolverCommand.STOP:
                                 responder.send([_SolverState.STOPPED, solver, actual_solver, 'Stopped'])
                             else:
                                 responder.send([_SolverState.ERROR, solver, actual_solver, 'unhandled event {}'.format(action)])
+                            #LOGGER.warning('solver stop')
+                            _Helper.hash_server_close(hashSocket)
                             break
-                        b_nonce = str(nonce).encode()
-                        digest = _Helper.build_digest_with_encoded_data(encodedBlockID, encodedPublicKey, b_nonce)
-                        digest_difficulty = _Helper._count_leading_zeroes(digest)
-                        if digest_difficulty >= difficulty:
-                            responder.send([_SolverState.HASH, solver, actual_solver, id, difficulty, b_nonce])
-                            difficulty = digest_difficulty + 1
-                            nonce = random.randrange(sys.maxsize)
+                        if hashSocket == None:
+                            b_nonce = str(nonce).encode()
+                            digest = _Helper.build_digest_with_encoded_data(encodedBlockID, encodedPublicKey, b_nonce)
+                            digest_difficulty = _Helper._count_leading_zeroes(digest)
+                            if digest_difficulty >= difficulty:
+                                responder.send([_SolverState.HASH, solver, actual_solver, id, difficulty, b_nonce])
+                                difficulty = digest_difficulty + 1
+                                nonce = random.randrange(sys.maxsize)
+                            else:
+                                nonce = nonce + 1
                         else:
-                            nonce = nonce + 1
+                            time.sleep(0.1)
+                            resMsg = _Helper.hash_server_send(hashSocket, 'GET')
+                            #LOGGER.warning(resMsg)
+                            if resMsg == None:
+                                #LOGGER.warning('get resMsg None')
+                                hashSocket = None
+                                continue
+                            getList = resMsg.split(',')
+                            digest_difficulty = None
+                            digest_nonce = None
+                            if getList[0] == 'GET':
+                                if getList[1] == 'EMPTY':
+                                    if getList[2] == 'EMPTY':
+                                        continue
+                                    elif getList[2] == encodedBlockID.decode():
+                                        continue
+                                    elif getList[2] != encodedBlockID.decode():
+                                        #LOGGER.warning('not eq1:' + getList[2])
+                                        #LOGGER.warning('not eq1:' + encodedBlockID.decode())
+                                        continue
+                                else:
+                                    digestBlockId = getList[1]
+                                    digest_difficulty = int(getList[2])
+                                    digest_nonce = int(getList[3])
+                                    if digestBlockId != encodedBlockID.decode():
+                                        #LOGGER.warning('not eq2:' + digestBlockId)
+                                        #LOGGER.warning('not eq2:' + encodedBlockID.decode())
+                                        continue
+                            else:
+                                continue
+                            if digest_difficulty >= difficulty:
+                                LOGGER.warning(resMsg)
+                                b_nonce = str(digest_nonce).encode()
+                                responder.send([_SolverState.HASH, solver, actual_solver, id, difficulty, b_nonce])
+                                difficulty = digest_difficulty + 1
+                                nonce = random.randrange(sys.maxsize)
+                            #else:
+                                #LOGGER.warning('not >=:' + str(digest_difficulty))
+                                #LOGGER.warning('not >=:' + str(difficulty))
                 else:
                     responder.send([_SolverState.ERROR, solver, actual_solver, 'Unhandled event {}'.format(action)])
-
         except KeyboardInterrupt:
             responder.send([_SolverState.STOPPED, solver, actual_solver, 'KeyboardInterrrupt: Shutting down'])
             return
-        except BaseException:
+        except BaseException as e:
+            LOGGER.error(e)
             responder.send([_SolverState.ERROR, solver, actual_solver, 'Critical: unhandled exception in solver, exiting process()'])
+        except Exception as e:
+            LOGGER.error(e)
     
     @property
     def state(self) -> _SolverState:
@@ -230,6 +286,60 @@ class _Helper:
         sha.update(encodedPublicKey)
         sha.update(b_nonce)
         return sha.digest()
+
+    @staticmethod
+    def hash_server_connect():
+        try:
+            hashSocket = socket.create_connection(("host.docker.internal", 10000))
+        except Exception as ex:
+            LOGGER.error(ex)
+            return None
+        return hashSocket
+
+    @staticmethod
+    def hash_server_close(hashSocket):
+        if hashSocket != None:
+            try:
+                _Helper.hash_server_send(hashSocket, 'CLOSE')
+                hashSocket.close()
+            except Exception as ex:
+                LOGGER.error(ex)
+
+    @staticmethod
+    def hash_server_send(hashSocket, message):
+        if hashSocket != None:
+            try:
+                send_data = message + '\n'
+                hashSocket.sendall(send_data.encode())
+                read_data = ''
+                while True:
+                    res = hashSocket.recv(1)
+                    res = res.decode()
+                    if res == "\n":
+                        break
+                    read_data += res
+                    if read_data == 'CLOSE':
+                        hashSocket.close()
+                        return None
+                return read_data
+            except Exception as ex:
+                LOGGER.error(ex)
+                return None
+        else:
+            return None
+
+    @staticmethod
+    def hash_server_work_send(hashSocket, blockId, publicKey, difficulty):
+        if hashSocket != None:
+            work = []
+            work.append('WORK')
+            work.append(blockId)
+            work.append(publicKey)
+            work.append(difficulty)
+            workMessage = ','.join(work)
+            return _Helper.hash_server_send(hashSocket, workMessage)
+        else:
+            return None
 
 class _DifficultyValidator():
     """

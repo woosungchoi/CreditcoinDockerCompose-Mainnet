@@ -51,6 +51,10 @@ services:
     secrets:
      - source: validator_logging
        target: /etc/sawtooth/log_config.toml
+     - source: concurrent_pow_solvers
+       target: /usr/local/lib/python3.5/dist-packages/PoW/__init__.py
+    extra_hosts:
+     - "host.docker.internal:host-gateway
     entrypoint: |
         bash -c 'if [[ ! -f /etc/sawtooth/keys/validator.pub ]]
             then 
@@ -132,6 +136,8 @@ secrets:
     file: ./rest_api-log_config.toml
   validator_logging:
     file: ./validator-log_config.toml
+  concurrent_pow_solvers:
+    file: ./__init__.py
 
 volumes:
   validator-block-volume:

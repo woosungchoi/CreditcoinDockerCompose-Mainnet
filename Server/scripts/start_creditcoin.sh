@@ -150,7 +150,7 @@ function install_docker_compose {
   local DESTINATION=$1
   local VERSION=1.26.2
 
-  sudo curl -L https://github.com/docker/compose/releases/download/${VERSION}/docker-compose-$(uname -s)-$(uname -m) -o $DESTINATION  ||  return 1
+  sudo curl -m 60 -L https://github.com/docker/compose/releases/download/${VERSION}/docker-compose-$(uname -s)-$(uname -m) -o $DESTINATION  ||  return 1
   sudo chmod 755 $DESTINATION
 
   return 0
@@ -173,7 +173,7 @@ function restart_creditcoin_node {
   local docker_compose
   get_docker_compose_file_name  docker_compose  ||  return 1
 
-  local public_ipv4_address=`curl https://checkip.amazonaws.com 2>/dev/null`
+  local public_ipv4_address=`curl -m 60 https://checkip.amazonaws.com 2>/dev/null`
   [ -z $public_ipv4_address ]  &&  {
     echo Unable to query public IP address.
     return 1
@@ -208,7 +208,15 @@ function restart_creditcoin_node {
 
   docker ps -q &>/dev/null  ||  start_docker_daemon  ||  return 1
 
+  hashServerPid=$(head -n 1 $CREDITCOIN_HOME/hashServer.pid 2> /dev/null)
+  kill $hashServerPid 2> /dev/null
+  rm $CREDITCOIN_HOME/hashServer.pid 2> /dev/null
   sudo $DOCKER_COMPOSE -f $docker_compose down 2>/dev/null
+  sudo docker network prune -f
+  nohup $CREDITCOIN_HOME/hashServer 10000 >> $CREDITCOIN_HOME/hashServer.log &
+  hashServerPid=$!
+  echo $hashServerPid > $CREDITCOIN_HOME/hashServer.pid
+  renice -n 10 -p $hashServerPid
   if sudo $DOCKER_COMPOSE -f $docker_compose up -d
   then
     timestamp
@@ -255,7 +263,11 @@ function start_docker_daemon {
 function stop_creditcoin_node {
   local docker_compose
   get_docker_compose_file_name  docker_compose  ||  return 1
+  hashServerPid=$(head -n 1 $CREDITCOIN_HOME/hashServer.pid 2> /dev/null)
+  kill $hashServerPid 2> /dev/null
+  rm $CREDITCOIN_HOME/hashServer.pid 2> /dev/null
   sudo $DOCKER_COMPOSE -f $docker_compose down 2>/dev/null
+  sudo docker network prune -f
   return $?
 }
 

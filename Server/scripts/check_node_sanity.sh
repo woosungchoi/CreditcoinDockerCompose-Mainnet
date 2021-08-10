@@ -13,7 +13,7 @@ function timestamp {
 
 
 function get_block_tip {
-  curl http://$REST_API_ENDPOINT/blocks?limit=1 2>/dev/null | grep -o '"block_num": "[^"]*' | cut -d'"' -f4
+  curl -m 60 http://$REST_API_ENDPOINT/blocks?limit=1 2>/dev/null | grep -o '"block_num": "[^"]*' | cut -d'"' -f4
   return $?
 }
 
@@ -22,12 +22,12 @@ function check_if_stagnant_state {
   local block_tip=$(get_block_tip)
   [ -z $block_tip ]  &&  return 1
 
-  local previous_block_tip=`cat $CREDITCOIN_HOME/.last_block_tip 2>/dev/null`  &&  {
-    [ $block_tip = $previous_block_tip ]  &&  {
-      rm $CREDITCOIN_HOME/.last_block_tip 2>/dev/null
-      return 1    # Validator is stagnant since block tip hasn't changed since last run
-    }
-  }
+#  local previous_block_tip=`cat $CREDITCOIN_HOME/.last_block_tip 2>/dev/null`  &&  {
+#    [ $block_tip = $previous_block_tip ]  &&  {
+#      rm $CREDITCOIN_HOME/.last_block_tip 2>/dev/null
+#      return 1    # Validator is stagnant since block tip hasn't changed since last run
+#    }
+#  }
 
   echo $block_tip > $CREDITCOIN_HOME/.last_block_tip
 
@@ -73,7 +73,7 @@ function log_number_of_open_descriptors {
 function log_public_ip_address {
   # crontab job is scheduled to run twice an hour; use first one
   (( 10#$(date +%H) == 3 ))  &&  (( $(date +%M) < 30 ))  &&  {
-    local public_ipv4_address=`curl https://checkip.amazonaws.com 2>/dev/null`
+    local public_ipv4_address=`curl -m 60 https://checkip.amazonaws.com 2>/dev/null`
     timestamp
     [ -n "$public_ipv4_address" ]  &&  {
       echo " Public IP address is $public_ipv4_address"
@@ -88,7 +88,7 @@ function log_public_ip_address {
 
 # For dynamic peering, need to log 'netcat' probe results to view history of connected peers over time.
 function probe_endpoints_of_validator_peers {
-  local peers=`curl http://$REST_API_ENDPOINT/peers 2>/dev/null | grep tcp:// | cut -d \" -f2 | sed 's/^.*\///'`
+  local peers=`curl -m 60 http://$REST_API_ENDPOINT/peers 2>/dev/null | grep tcp:// | cut -d \" -f2 | sed 's/^.*\///'`
   local -n return_open_peers=$1
   local open=0
 
