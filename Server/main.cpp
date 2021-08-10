@@ -33,7 +33,7 @@ const std::string EMPTY("EMPTY");
 const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
 std::atomic_ullong TIMESTAMP_ATOMIC(0);
 
-static std::string best_block_id(EMPTY);
+static std::string current_block_id(EMPTY);
 static std::string best_nonce;
 static int best_difficulty = -1;
 
@@ -84,7 +84,7 @@ private:
     {
         int count = 0;
 
-        for (int i = 0; i < digest.size(); i++)
+        for (int i = 0; i < (int)digest.size(); i++)
         {
             byte b = static_cast<byte>(digest.data()[i]);
 
@@ -241,7 +241,7 @@ private:
 
     void hash_worker_start(std::string &block_id, std::string &public_key, std::string &difficulty)
     {
-        best_block_id = block_id;
+        current_block_id = block_id;
 
         unsigned long long timestamp = TIMESTAMP_ATOMIC.load();
 
@@ -301,7 +301,7 @@ private:
                         body.reserve(256);
                         body.append(GET);
                         body.append(",");
-                        body.append(best_block_id);
+                        body.append(current_block_id);
                         body.append(",");
                         body.append(std::to_string(best_difficulty));
                         body.append(",");
@@ -318,7 +318,7 @@ private:
                         body.append(",");
                         body.append(EMPTY);
                         body.append(",");
-                        body.append(best_block_id);
+                        body.append(current_block_id);
                         body.append(END_OF_STR);
 
                         write(body);
@@ -330,7 +330,7 @@ private:
                     int digest_difficulty = std::stoi(items[2]);
                     std::string nonce = items[3];
 
-                    if (best_block_id != block_id)
+                    if (current_block_id != block_id)
                     {
                         write(std::string(STOP).append(END_OF_STR));
                         return;
