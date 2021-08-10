@@ -30,7 +30,7 @@ const std::string SUCCESS("SUCCESS");
 const std::string ERROR("ERROR");
 const std::string EMPTY("EMPTY");
 
-const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
+const unsigned int THREAD_COUNT = std::thread::hardware_concurrency() - 1;
 std::atomic_ullong TIMESTAMP_ATOMIC(0);
 
 static std::string current_block_id(EMPTY);
