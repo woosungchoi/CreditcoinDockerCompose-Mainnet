@@ -11,3 +11,6 @@ Requirement
  - Docker 20.10+
 
 You must run build.sh in the ./Server directory.
+
+I'm using all the cores.
+![Multithreading](https://user-images.githubusercontent.com/19469291/128811623-c0c66a92-8150-455a-b3a6-e6cd96adb0d3.png)
