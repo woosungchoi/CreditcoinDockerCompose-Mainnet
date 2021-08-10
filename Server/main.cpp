@@ -33,9 +33,9 @@ const std::string EMPTY("EMPTY");
 const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
 std::atomic_ullong TIMESTAMP_ATOMIC(0);
 
-std::string best_block_id(EMPTY);
-std::string best_nonce;
-int best_difficulty = -1;
+static std::string best_block_id(EMPTY);
+static std::string best_nonce;
+static int best_difficulty = -1;
 
 class session;
 std::list<session*> sessionList;
