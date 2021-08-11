@@ -54,7 +54,7 @@ services:
       - source: concurrent_pow_solvers
         target: /usr/local/lib/python3.5/dist-packages/PoW/__init__.py
     extra_hosts:
-      - "host.docker.internal:host-gateway
+      - "host.docker.internal:host-gateway"
     entrypoint: |
        bash -c 'if [[ ! -f /etc/sawtooth/keys/validator.pub ]]
            then 
