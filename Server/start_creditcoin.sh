@@ -299,7 +299,7 @@ cd $CREDITCOIN_HOME  ||  exit 1
 os_name="$(uname -s)"
 case "${os_name}" in
   Linux*)
-    DOCKER_COMPOSE=/usr/bin/docker-compose
+    DOCKER_COMPOSE=/usr/local/bin/docker-compose
     NETCAT=nc
     ;;
   Darwin*)
